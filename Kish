@@ -1,0 +1,122 @@
+import sqlite3
+from tkinter import *
+from tkinter import messagebox
+from pymongo import MongoClient
+
+# ================= 1. DATABASES =================
+# MongoDB connection
+client = MongoClient("mongodb://localhost:27017/", serverSelectionTimeoutMS=1000)
+db = client["school_db"]
+mongo_col = db["students"]
+
+# SQLite3 connection
+sql_con = sqlite3.connect("students.db")
+sql_cur = sql_con.cursor()
+sql_cur.execute("""
+CREATE TABLE IF NOT EXISTS students (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    course TEXT
+)
+""")
+sql_con.commit()
+
+
+# ================= 2. OPERATIONS =================
+def add_record():
+    sid, name, crs = id_ent.get().strip(), name_ent.get().strip(), crs_ent.get().strip()
+    if not sid or not name:
+        messagebox.showerror("Error", "ID and Name are required!")
+        return
+
+    # Check if ID exists in SQLite
+    sql_cur.execute("SELECT id FROM students WHERE id=?", (sid,))
+    if sql_cur.fetchone():
+        messagebox.showerror("Error", "Student ID already exists!")
+        return
+
+    # Save to SQLite
+    sql_cur.execute("INSERT INTO students VALUES (?, ?, ?)", (sid, name, crs))
+    sql_con.commit()
+
+    # Save to MongoDB
+    try:
+        mongo_col.insert_one({"_id": sid, "name": name, "course": crs})
+    except Exception:
+        pass
+
+    messagebox.showinfo("Success", "Record added to both databases!")
+    clear_fields()
+
+
+def update_record():
+    sid, name, crs = id_ent.get().strip(), name_ent.get().strip(), crs_ent.get().strip()
+    
+    # Update SQLite
+    sql_cur.execute("UPDATE students SET name=?, course=? WHERE id=?", (name, crs, sid))
+    sql_con.commit()
+
+    if sql_cur.rowcount == 0:
+        messagebox.showerror("Error", "Student ID not found!")
+        return
+
+    # Update MongoDB
+    try:
+        mongo_col.update_one({"_id": sid}, {"$set": {"name": name, "course": crs}})
+    except Exception:
+        pass
+
+    messagebox.showinfo("Success", "Record updated!")
+    clear_fields()
+
+
+def delete_record():
+    sid = id_ent.get().strip()
+    
+    # Delete from SQLite
+    sql_cur.execute("DELETE FROM students WHERE id=?", (sid,))
+    sql_con.commit()
+
+    if sql_cur.rowcount == 0:
+        messagebox.showerror("Error", "Student ID not found!")
+        return
+
+    # Delete from MongoDB
+    try:
+        mongo_col.delete_one({"_id": sid})
+    except Exception:
+        pass
+
+    messagebox.showinfo("Success", "Record deleted!")
+    clear_fields()
+
+
+def clear_fields():
+    id_ent.delete(0, END)
+    name_ent.delete(0, END)
+    crs_ent.delete(0, END)
+
+
+# ================= 3. GUI =================
+root = Tk()
+root.title("Student Manager")
+root.geometry("280x230")
+
+Label(root, text="Student ID").grid(row=0, column=0, padx=10, pady=8, sticky="w")
+id_ent = Entry(root)
+id_ent.grid(row=0, column=1, padx=10, pady=8)
+
+Label(root, text="Name").grid(row=1, column=0, padx=10, pady=8, sticky="w")
+name_ent = Entry(root)
+name_ent.grid(row=1, column=1, padx=10, pady=8)
+
+Label(root, text="Course").grid(row=2, column=0, padx=10, pady=8, sticky="w")
+crs_ent = Entry(root)
+crs_ent.grid(row=2, column=1, padx=10, pady=8)
+
+Button(root, text="Insert", width=8, command=add_record).grid(row=3, column=0, pady=12)
+Button(root, text="Update", width=8, command=update_record).grid(row=3, column=1, pady=12, sticky="w")
+Button(root, text="Delete", width=8, command=delete_record).grid(row=4, column=0, pady=4)
+Button(root, text="Clear", width=8, command=clear_fields).grid(row=4, column=1, pady=4, sticky="w")
+
+root.mainloop()
