@@ -1,0 +1,796 @@
+===== PAGE 1 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+1 
+ 
+1. Student Record Management System 
+Develop a Tkinter-based Student Record Management System using MongoDB to manage student records. Database 
+Name: student 
+CollecƟon Name: student_master 
+Fields: Student_ID, Name, Course, Semester, Marks of 5 Subjects, Total Marks, Percentage, Grade Requirements: 
+• Calculate Total Marks, Percentage and Grade automaƟcally. 
+• Search student by Student ID/Roll No. 
+• Perform Add, Update, Delete, Search, Display, Clear and Exit operaƟons. e.delete(0,tk.END) 
+from tkinter import * 
+from tkinter import messagebox from pymongo import MongoClient 
+ 
+client = MongoClient("mongodb://localhost:27017/student-last") db = client["school"] 
+collecƟon = db["student"] 
+ 
+def show(): 
+document = {"name": sn.get(), "std_id": si.get(), "course": cr.get(), "sub5": sm.get()} if collecƟon.ﬁnd_one({"std_id": 
+si.get()}): 
+messagebox.showinfo("Error", "Already exists") 
+ else: 
+collecƟon.insert_one(document) 
+ messagebox.showinfo("Success", "Inserted") 
+def update_data(): 
+updated = {"name": sn.get(), "course": cr.get(), "sub5": 
+sm.get()} collection.update_one({"std_id": si.get()}, {"$set": 
+updated}) messagebox.showinfo("Success", "Updated") 
+def delete_data(): 
+collection.delete_one({"std_id": 
+si.get()}) 
+messagebox.showinfo("Success", 
+"Deleted") 
+root = Tk()
+
+===== PAGE 2 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+2 
+ 
+root.title("Register") 
+root.geometry("300x3") 
+ 
+t = Label(root, text="Register") 
+t.grid(row=0, column=0, columnspan=2, pady=10) 
+ 
+ 
+Label(root, text="Name").grid(row=1, column=0, 
+pady=10) sn = Entry(root) 
+sn.grid(row=1, column=1) 
+ 
+ 
+Label(root, text="Student_id").grid(row=2, column=0, 
+pady=10) si = Entry(root) 
+si.grid(row=2, column=1) 
+ 
+ 
+Label(root, text="course").grid(row=3, column=0, pady=10) 
+cr = Entryr  
+ 
+Label(root, text="Total 5 sub marks").grid(row=4, column=0, 
+pady=10) sm = Entry(root) 
+sm.grid(row=4, column=1) 
+ 
+ 
+btn1 = Button(root, text="Submit", command=show) 
+btn1.grid(row=5, column=0, pady=10) 
+ 
+btn2 = Button(root, text="Update", command=update_data) 
+btn2.grid(row=5, column=1, pady=10) 
+btn3 = Button(root, text="Delete", command=delete_data) 
+btn3.grid(row=6, column=0, columnspan=2, pady=10)
+
+===== PAGE 3 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+3 
+ 
+root.mainloop() 
+                                  
+2.Employee Payroll Management System 
+Develop a Tkinter-based Employee Payroll Management System using MongoDB. 
+Database Name: employee 
+Collection Name: emp 
+Fields: Employee_Name, Department, Basic_Salary, HRA_Percentage, HRA, CHRA, CDA, CPF, Gross_Salary, 
+Net_Salary 
+Calculate the required salary components, Gross Salary and Net Salary 
+automatically. Provide buttons for Insert, Update, Delete, Search, Display, Clear 
+and Exit operations. from tkinter import * 
+from tkinter import messagebox 
+from pymongo import MongoClient 
+ 
+ 
+client = 
+MongoClient("mongodb://localhost:27017/") db = 
+client["payroll_db"] 
+collection = db["employees"] 
+ 
+ 
+def calculate_salaries(): 
+"""Helper logic to safely parse inputs and calculate monetary 
+variables.""" try: 
+basic = float(basic_entry.get() 
+or 0) hr_p = float(hr_entry.get()
+
+===== PAGE 4 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+4 
+ 
+or 0) da_p = 
+float(da_entry.get() or 0) pf_p 
+= float(pf_entry.get() or 0) 
+ 
+hr_amount = basic * (hr_p / 
+100) da_amount = basic * 
+(da_p / 100) pf_amount = 
+basic * (pf_p / 100) 
+ 
+gross = basic + hr_amount + 
+da_amount net = gross - pf_amount 
+return round(gross, 2), round(net, 2) 
+except ValueError: 
+messagebox.showerror("Error", "Please input valid numerical values for salary and percentages.") 
+return None, None 
+def insert_employee(): 
+if not emp_id_entry.get() or not name_entry.get() or not basic_entry.get(): 
+messagebox.showerror("Error", "ID, Name, and Basic Salary are required 
+fields!") return 
+ 
+if collection.find_one({"emp_id": emp_id_entry.get()}): 
+messagebox.showinfo("Error", "Employee ID already 
+exists!") return 
+ 
+gross, net = 
+calculate_salaries() if gross 
+is None:
+
+===== PAGE 5 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+5 
+ 
+return 
+ 
+ 
+document = { 
+"emp_id": emp_id_entry.get(), 
+"name": name_entry.get(), 
+"department": dept_entry.get(), 
+"basic_salary": 
+float(basic_entry.get()), 
+"hr_percentage": float(hr_entry.get() or 0), 
+"da_percentage": float(da_entry.get() or 0), 
+"pf_percentage": float(pf_entry.get() or 0), 
+"gross_salary": gross, 
+"net_salary": net 
+} 
+collection.insert_one(document) 
+messagebox.showinfo("Success", f"Inserted!\nGross: {gross}\nNet: {net}") clear_fields() 
+ 
+def update_employee(): 
+if not emp_id_entry.get(): 
+messagebox.showerror("Error", "Please enter Employee ID to update calculations!") return 
+gross, net = calculate_salaries() if gross is None: 
+return 
+updated_data = { 
+"name": name_entry.get(), 
+ "department": dept_entry.get(), 
+"basic_salary": float(basic_entry.get() or 0),  
+"hr_percentage": float(hr_entry.get() or 0),
+
+===== PAGE 6 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+6 
+ 
+ "da_percentage": float(da_entry.get() or 0), 
+ "pf_percentage": float(pf_entry.get() or 0), 
+ "gross_salary": gross, 
+"net_salary": net 
+} 
+ 
+result = collecƟon.update_one({"emp_id": emp_id_entry.get()}, 
+ {"$set": updated_data}) if result.matched_count > 0: 
+messagebox.showinfo("Success", f"Updated!\nRecalculated Gross: {gross}\nRecalculated Net: {net}") else: 
+messagebox.showerror("Error", "Employee ID not found!") 
+ 
+def delete_employee(): 
+if not emp_id_entry.get(): 
+messagebox.showerror("Error", "Employee ID is mandatory for deleƟon.") return 
+ 
+result = collecƟon.delete_one({"emp_id": emp_id_entry.get()}) 
+ if 
+ result.deleted_count > 0: 
+messagebox.showinfo("Success", "Employee Record Deleted!") clear_ﬁelds() 
+else: 
+messagebox.showerror("Error", "Employee ID not found!") 
+ 
+def clear_ﬁelds(): 
+ emp_id_entry.delete(0, END) 
+ name_entry.delete(0, END)  
+dept_entry.delete(0, END) 
+ basic_entry.delete(0, END) 
+ hr_entry.delete(0, END) 
+ da_entry.delete(0, END) 
+result = collecƟon.update_one({"emp_id":  
+emp_id_entry.get()},
+
+===== PAGE 7 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+7 
+ 
+ {"$set": updated_data}) 
+ if result.matched_count > 0: 
+messagebox.showinfo("Success", f"Updated!\nRecalculated Gross:  
+{gross}\nRecalculated Net: {net}") else: 
+messagebox.showerror("Error", "Employee ID not found!") 
+ 
+def delete_employee(): 
+if not emp_id_entry.get(): 
+messagebox.showerror("Error", "Employee ID is mandatory for deleƟon.") return 
+ 
+result = collecƟon.delete_one({"emp_id": emp_id_entry.get()}) if result.deleted_count > 0: 
+messagebox.showinfo("Success", "Employee Record Deleted!") clear_ﬁelds() 
+else: 
+messagebox.showerror("Error", "Employee ID not found!") 
+def clear_ﬁelds(): emp_id_entry.delete(0, END) name_entry.delete(0, END) dept_entry.delete(0, END) 
+basic_entry.delete(0, END) hr_entry.delete(0, END) da_entry.delete(0, END)pf_entry.delete(0, END) 
+ 
+root = Tk() 
+root.Ɵtle("Payroll Management System") root.geometry("380x480") 
+ 
+Ɵtle_lbl = Label(root, text="Employee Payroll Entry", font=("Arial", 14, "bold")) Ɵtle_lbl.grid(row=0, column=0, 
+columnspan=2, pady=15) 
+ 
+ﬁelds = [ 
+("Employee ID:", "emp_id_entry"), ("Full Name:", "name_entry"), 
+("Department:", "dept_entry"), ("Basic Salary:", "basic_entry"), ("HR (in %):", "hr_entry"), 
+("DA (in %):", "da_entry"), 
+("PF (in %):", "pf_entry") 
+] 
+ 
+for idx, (label_text, var_name) in enumerate(ﬁelds, start=1): 
+Label(root, text=label_text).grid(row=idx, column=0, pady=6, sƟcky="w", padx=25) globals()[var_name] = Entry(root, 
+width=25)
+
+===== PAGE 8 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+8 
+ 
+globals()[var_name].grid(row=idx, column=1, pady=6) 
+ 
+btn_submit = BuƩon(root, text="Submit", command=insert_employee, width=12) 
+btn_submit.grid(row=8, column=0, pady=15, padx=10) 
+ 
+btn_update = BuƩon(root, text="Update", command=update_employee, width=12) btn_update.grid(row=8, 
+column=1, pady=15, padx=10) 
+ 
+btn_delete = BuƩon(root, text="Delete Record", command=delete_employee, width=26) btn_delete.grid(row=9, 
+column=0, columnspan=2, pady=5) 
+ 
+root.mainloop() 
+                                                   
+3.Product and Customer Bill Management System 
+Develop a Tkinter GUI applicaƟon using MongoDB for maintaining products and calculaƟng the customer bill. 
+CollecƟon Name: product 
+Fields: Product_ID, Product_Name, Category, Price, QuanƟty, Discount, GST Requirements: 
+• Calculate Amount = Price × QuanƟty. 
+• Calculate discount amount. 
+• Calculate GST at 18%. 
+• Calculate the ﬁnal customer bill. 
+• Provide suitable operaƟons to Insert, Update, Delete, Search, Display, Clear and Exit. from tkinter import * 
+from tkinter import messagebox from pymongo import MongoClient 
+ 
+client = MongoClient("mongodb://localhost:27017/") db = client["billing_db"]
+
+===== PAGE 9 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+9 
+ 
+collecƟon = db["customer_bills"] 
+def calculate_bill(): 
+"""Helper logic to safely parse inputs and calculate billing totals.""" 
+ try: 
+qty = int(qty_entry.get() or 0) 
+ price = ﬂoat(amt_entry.get() or 0) 
+discount_p = ﬂoat(disc_entry.get() or 0) 
+subtotal = qty * price 
+discount_amount = subtotal * (discount_p / 100) 
+ﬁnal_bill = subtotal - discount_amount 
+ 
+return round(ﬁnal_bill, 2) except ValueError: 
+messagebox.showerror("Error", "Please input a valid whole number for QuanƟty and numbers for Price/Discount.") 
+return None 
+ 
+def insert_bill(): 
+if not prod_id_entry.get()  
+or not name_entry.get() 
+ or not qty_entry.get() 
+ or not amt_entry.get():  
+messagebox.showerror("Error", "Product ID, Name, QuanƟty, and Price Amount are required ﬁelds!") return 
+ 
+if collecƟon.ﬁnd_one({"product_id": prod_id_entry.get()}):  
+messagebox.showinfo("Error", "Bill reference for this Product ID already exists!") 
+return 
+ 
+ﬁnal_total = calculate_bill() if ﬁnal_total is None: 
+return 
+ 
+document = { 
+"product_id": prod_id_entry.get(), "product_name": name_entry.get(), "quanƟty": int(qty_entry.get()), 
+"price_per_item": ﬂoat(amt_entry.get()), 
+"discount_percentage": ﬂoat(disc_entry.get() or 0), "total_bill": ﬁnal_total
+
+===== PAGE 10 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+10 
+ 
+} 
+collecƟon.insert_one(document) 
+messagebox.showinfo("Success", f"Bill Generated Successfully!\nTotal Payable: ₹{ﬁnal_total}") clear_ﬁelds() 
+ 
+def update_bill(): 
+if not prod_id_entry.get(): 
+messagebox.showerror("Error", "Please enter Product ID to update the billing record!") return 
+ 
+ﬁnal_total = calculate_bill() 
+if ﬁnal_total is None: return 
+ 
+updated_data = { 
+"product_name": name_entry.get(), 
+ "quanƟty": int(qty_entry.get() or 0), 
+ "price_per_item": ﬂoat(amt_entry.get() or 0), 
+"discount_percentage": ﬂoat(disc_entry.get() or 0), 
+ "total_bill": ﬁnal_total 
+} 
+result = collecƟon.update_one({"product_id": prod_id_entry.get()},  
+{"$set": updated_data}) 
+ If 
+ result.matched_count > 0: 
+messagebox.showinfo("Success", f"Bill Updated!\nRecalculated Total: ₹{ﬁnal_total}") else: 
+messagebox.showerror("Error", "Product ID bill record not found!") 
+ 
+def delete_bill(): 
+if not prod_id_entry.get(): 
+messagebox.showerror("Error", "Product ID is mandatory to delete a transacƟon.")  
+return 
+result = collecƟon.delete_one({"product_id": prod_id_entry.get()})  
+if result.deleted_count > 0: 
+messagebox.showinfo("Success", "Customer Bill Record Deleted!")
+
+===== PAGE 11 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+11 
+ 
+clear_ﬁelds() else: 
+messagebox.showerror("Error", "Product ID bill record not found!") 
+ 
+def clear_ﬁelds():  
+prod_id_entry.delete(0, END) 
+ name_entry.delete(0, END)  
+qty_entry.delete(0, END)  
+amt_entry.delete(0, END)  
+disc_entry.delete(0, END) 
+ 
+root = Tk() 
+root.Ɵtle("Customer Billing System")  
+root.geometry("380x420") 
+ 
+Ɵtle_lbl = Label(root, text="Customer Invoice Entry", font=("Arial", 14, "bold"))  
+Ɵtle_lbl.grid(row=0, column=0, columnspan=2, pady=15) 
+ 
+ﬁelds = [ 
+("Product ID:", "prod_id_entry"), 
+ ("Product Name:", "name_entry"), 
+ ("QuanƟty:", "qty_entry"), 
+("Amount (Price/Item):", "amt_entry"), 
+("Discount (in %):", "disc_entry") 
+] 
+for idx, (label_text, var_name) in enumerate(ﬁelds, start=1): 
+Label(root, text=label_text).grid(row=idx, column=0, pady=8, sƟcky="w", padx=25) globals()[var_name] = Entry(root, 
+width=25) 
+globals()[var_name].grid(row=idx, column=1, pady=8) 
+ 
+btn_submit = BuƩon(root, text="Generate Bill", command=insert_bill, width=12) btn_submit.grid(row=6, column=0, 
+pady=15, padx=10) 
+btn_update = BuƩon(root, text="Update Bill", command=update_bill, width=12) btn_update.grid(row=6, column=1, 
+pady=15, padx=10)
+
+===== PAGE 12 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+12 
+ 
+ 
+btn_delete = BuƩon(root, text="Delete Invoice", command=delete_bill, width=26) btn_delete.grid(row=7, column=0, 
+columnspan=2, pady=5) 
+ 
+root.mainloop()  
+4.Library Management System 
+Create a Library Management System using Python Tkinter and MongoDB. Database Name: BOOK 
+CollecƟon Name: BOOK_master 
+Fields: Book_ID, Name, Author, Category, Price, Number_of_Copies, Issue_Date Requirements: 
+• Insert book records. 
+• Update book records. 
+• Delete book records. 
+• Search book by name. 
+• Display book records. from tkinter import * 
+from tkinter import messagebox from pymongo import MongoClient 
+ 
+client = MongoClient("mongodb://localhost:27017/") db = client["Book_master"] 
+collecƟon = db["Books_name"] 
+ 
+def insert_book(): 
+if not book_id_entry.get() or not name_entry.get() or not author_entry.get(): messagebox.showerror("Error", "All 
+ﬁelds (Book ID, Name, Author) are required!") return 
+ 
+if collecƟon.ﬁnd_one({"book_id": book_id_entry.get()}): messagebox.showinfo("Error", "This Book ID already exists in 
+the library catalog!") return 
+document = {
+
+===== PAGE 13 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+13 
+ 
+"book_id": book_id_entry.get(), "book_name": name_entry.get(), "book_author": author_entry.get() 
+} 
+collecƟon.insert_one(document) 
+messagebox.showinfo("Success", f"Book '{name_entry.get()}' added to catalog successfully!") clear_ﬁelds() 
+def update_book(): 
+if not book_id_entry.get(): 
+messagebox.showerror("Error", "Please enter a Book ID to update details!") return 
+ 
+updated_data = { 
+"book_name": name_entry.get(), "book_author": author_entry.get() 
+} 
+ 
+result = collecƟon.update_one({"book_id": book_id_entry.get()},  
+{"$set": updated_data}) if result.matched_count > 0: 
+messagebox.showinfo("Success", "Book metadata updated successfully!") 
+ else: 
+messagebox.showerror("Error", "Book ID not found in library records!") 
+ 
+def delete_book(): 
+if not book_id_entry.get(): 
+messagebox.showerror("Error", "Book ID is required to remove a record.") 
+ return 
+result = collecƟon.delete_one({"book_id": book_id_entry.get()})  
+if result.deleted_count > 0: 
+messagebox.showinfo("Success", "Book deleted from registry!") 
+clear_ﬁelds() else: 
+messagebox.showerror("Error", "Book ID not found!") 
+ 
+def clear_ﬁelds(): 
+ book_id_entry.delete(0, END) 
+ name_entry.delete(0, END) 
+ athor_entry.delete(0, END)
+
+===== PAGE 14 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+14 
+ 
+root = Tk() 
+root.Ɵtle("Library Management System") 
+ root.geometry("380x320") 
+Ɵtle_lbl = Label(root, text="Library Catalog Registry", font=("Arial", 14, "bold")) 
+ Ɵtle_lbl.grid(row=0, column=0, columnspan=2, pady=15) 
+ 
+ﬁelds = [ 
+("Book ID:", "book_id_entry"), 
+("Book Name:", "name_entry"),  
+("Book Author:", "author_entry") 
+] 
+ 
+for idx, (label_text, var_name) in enumerate(ﬁelds, start=1): 
+Label(root, text=label_text, font=("Arial", 10)).grid(row=idx, column=0, pady=8, sƟcky="w", padx=30) 
+globals()[var_name] = Entry(root, width=25, font=("Arial", 10)) 
+globals()[var_name].grid(row=idx, column=1, pady=8) 
+ 
+btn_submit = BuƩon(root, text="Add Book", command=insert_book, width=12) btn_submit.grid(row=4, column=0, 
+pady=20, padx=15) 
+ 
+btn_update = BuƩon(root, text="Update Details", command=update_book, width=12) btn_update.grid(row=4, 
+column=1, pady=20, padx=15) 
+ 
+btn_delete = BuƩon(root, text="Remove from Catalog", command=delete_book, width=28) btn_delete.grid(row=5, 
+column=0, columnspan=2, pady=5) 
+ 
+root.mainloop()
+
+===== PAGE 15 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+15 
+ 
+5.Student AƩendance Management System 
+Develop a Student AƩendance Management System using Python Tkinter and MongoDB. Database Name: student 
+CollecƟon Name: student_master 
+Fields: Student_ID, Name, Course, Total_Lectures, Lectures_AƩended, AƩendance_Percentage Requirements: 
+• Calculate AƩendance Percentage automaƟcally. 
+• Perform Insert, Update, Delete and Search operaƟons. 
+• Search student by Student ID or Name. 
+• Display student aƩendance records. from tkinter import * 
+from tkinter import messagebox from pymongo import MongoClient 
+ 
+client = MongoClient("mongodb://localhost:27017/") 
+db = client["aƩendance_master"] collecƟon = db["student_aƩendance"] 
+ 
+TOTAL_WORKING_DAYS = 200 
+ 
+def get_percentage(present_days): 
+"""Calculates aƩendance percentage based on total working days.""" 
+ return round((ﬂoat(present_days) / TOTAL_WORKING_DAYS) * 100, 2) 
+ 
+def save_data(): 
+if not si.get() or not sn.get() or not sa.get():  
+messagebox.showerror("Error", "All entry ﬁelds are required!") return 
+try: 
+pct = get_percentage(sa.get()) document = { 
+"std_id": si.get(), 
+"std_name": sn.get(), "total_aƩendance": int(sa.get()), "aƩ_percentage": pct 
+} 
+collecƟon.update_one({"std_id": si.get()}, {"$set": document}, upsert=True) messagebox.showinfo("Success", 
+f"Saved! AƩendance: {pct}%") 
+clear_ﬁelds() except ValueError: 
+messagebox.showerror("Error", "AƩendance must be a valid number!")
+
+===== PAGE 16 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+16 
+ 
+def search_student(): if not si.get(): 
+messagebox.showerror("Error", "Enter Student ID to search!") return 
+ 
+record = collecƟon.ﬁnd_one({"std_id": si.get()}) if record: 
+sn.delete(0, END) 
+sn.insert(0, record.get("std_name", "")) sa.delete(0, END) 
+sa.insert(0, str(record.get("total_aƩendance", ""))) 
+ 
+lbl_pct.conﬁg(text=f"AƩ %: {record.get('aƩ_percentage', 0.0)}%") else: 
+messagebox.showerror("Not Found", "No student found with this ID!") 
+ 
+def delete_data(): if not si.get(): 
+messagebox.showerror("Error", "Enter Student ID to delete!") return 
+result = collecƟon.delete_one({"std_id": si.get()}) if result.deleted_count > 0: 
+messagebox.showinfo("Success", "Record Deleted!") clear_ﬁelds() 
+else: 
+messagebox.showerror("Error", "Record not found!") 
+ 
+def clear_ﬁelds(): si.delete(0, END) sn.delete(0, END) sa.delete(0, END) 
+lbl_pct.conﬁg(text="AƩ %: --") 
+ 
+root = Tk() 
+root.Ɵtle("AƩendance Manager") root.geometry("320x300") 
+ 
+Label(root, text="Std ID:").grid(row=0, column=0, pady=8, padx=10, sƟcky="w") si = Entry(root, width=15) 
+si.grid(row=0, column=1, pady=8) 
+ 
+btn_search = BuƩon(root, text="  Search", command=search_student) btn_search.grid(row=0, column=2, padx=5) 
+ 
+Label(root, text="Std Name:").grid(row=1, column=0, pady=8, padx=10, sƟcky="w") 
+sn = Entry(root, width=22) 
+sn.grid(row=1, column=1, columnspan=2, pady=8, sƟcky="w")
+
+===== PAGE 17 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+17 
+ 
+Label(root, text="Total AƩ:").grid(row=2, column=0, pady=8, padx=10, sƟcky="w") sa = Entry(root, width=22) 
+sa.grid(row=2, column=1, columnspan=2, pady=8, sƟcky="w") 
+lbl_pct = Label(root, text="AƩ %: --", font=("Arial", 11, "bold"), fg="blue") lbl_pct.grid(row=3, column=0, 
+columnspan=3, pady=10) 
+ 
+BuƩon(root, text="Save / Upsert", command=save_data, width=12).grid(row=4, column=0, padx=5, pady=10) 
+BuƩon(root, text="Delete", command=delete_data, width=10).grid(row=4, column=1, padx=5, pady=10) 
+BuƩon(root, text="Clear", command=clear_ﬁelds, width=8).grid(row=4, column=2, padx=5, pady=10) 
+ 
+root.mainloop() 
+                                                                 
+6.Bank Account Management System 
+Develop a simple Bank Account Management System using Python Tkinter and MongoDB. Database Name: Bank 
+CollecƟon Name: account 
+Fields: Account_No, Customer_Name, Account_Type (Saving/Current), Deposit_Amount, Withdraw_Amount, 
+Balance 
+Requirements: 
+• Create/insert a bank account. 
+• Deposit amount. 
+• Withdraw amount. 
+• Calculate and display the current balance. 
+• Update account details. 
+• Delete account. 
+• Search account. 
+• Display account records. from tkinter import * 
+from tkinter import messagebox from pymongo import MongoClient 
+ 
+client = MongoClient("mongodb://localhost:27017/") db = client["bank"]
+
+===== PAGE 18 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+18 
+ 
+collecƟon = db["account"] 
+ 
+def save_account(): 
+if not acc_entry.get() or not name_entry.get() or not bal_entry.get(): messagebox.showerror("Error", "All entry ﬁelds 
+are required!") return 
+ 
+if collecƟon.ﬁnd_one({"acc_no": acc_entry.get()}): messagebox.showerror("Error", "Account Number already 
+exists!") return 
+ 
+doc = { 
+"acc_no": acc_entry.get(), "customer_name": name_entry.get(), "balance": ﬂoat(bal_entry.get()), "account_type": 
+acc_type.get() 
+} 
+collecƟon.insert_one(doc) 
+messagebox.showinfo("Success", "Account Created Successfully!") clear_ﬁelds() 
+ 
+def search_account(): 
+account = collecƟon.ﬁnd_one({"acc_no": acc_entry.get()}) if account: 
+name_entry.delete(0, END) 
+name_entry.insert(0, account["customer_name"]) bal_entry.delete(0, END) 
+bal_entry.insert(0, str(account["balance"])) acc_type.set(account["account_type"]) 
+else: 
+messagebox.showerror("Error", "Account Not Found!") 
+ 
+def handle_transacƟon(acƟon_type): try: 
+amount = ﬂoat(trans_entry.get() or 0) if amount <= 0: 
+messagebox.showerror("Error", "Enter a valid amount!") return 
+ 
+account = collecƟon.ﬁnd_one({"acc_no": acc_entry.get()}) if not account: 
+messagebox.showerror("Error", "Search or enter a valid Account Number ﬁrst!") return 
+current_balance = account["balance"] 
+ 
+if acƟon_type == "deposit":
+
+===== PAGE 19 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+19 
+ 
+new_balance = current_balance + amount elif acƟon_type == "withdraw": 
+if amount > current_balance: messagebox.showerror("Error", "Insuﬃcient Balance!") return 
+new_balance = current_balance - amount 
+ 
+collecƟon.update_one({"acc_no": acc_entry.get()}, {"$set": {"balance": new_balance}}) 
+messagebox.showinfo("Success", f"TransacƟon successful! New Balance: ₹{new_balance}") 
+ 
+bal_entry.delete(0, END) bal_entry.insert(0, str(new_balance)) trans_entry.delete(0, END) 
+except ValueError: 
+messagebox.showerror("Error", "Please enter a valid numeric transacƟon amount!") 
+ 
+def clear_ﬁelds(): acc_entry.delete(0, END) name_entry.delete(0, END) bal_entry.delete(0, END) 
+trans_entry.delete(0, END) 
+acc_type.set("Savings") 
+root = Tk() 
+root.Ɵtle("Simple Bank System") root.geometry("380x360") 
+ 
+acc_type = StringVar(value="Savings") 
+ 
+Label(root, text="Acc No:").grid(row=0, column=0, pady=6, padx=10, sƟcky="w") acc_entry = Entry(root, width=15) 
+acc_entry.grid(row=0, column=1, pady=6, sƟcky="w") 
+ 
+BuƩon(root, text="search Find", command=search_account, bg="lightblue").grid(row=0, column=2, padx=5) 
+ 
+Label(root, text="Customer Name:").grid(row=1, column=0, pady=6, padx=10, sƟcky="w") name_entry = Entry(root, 
+width=22) 
+name_entry.grid(row=1, column=1, columnspan=2, pady=6, sƟcky="w") 
+ 
+Label(root, text="Balance:").grid(row=2, column=0, pady=6, padx=10, sƟcky="w") bal_entry = Entry(root, width=22) 
+bal_entry.grid(row=2, column=1, columnspan=2, pady=6, sƟcky="w") 
+ 
+Label(root, text="Acc Type:").grid(row=3, column=0, pady=6, padx=10, sƟcky="w") 
+RadiobuƩon(root, text="Savings", variable=acc_type, value="Savings").grid(row=3, column=1, sƟcky="w")
+
+===== PAGE 20 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+20 
+ 
+RadiobuƩon(root, text="Current", variable=acc_type, value="Current").grid(row=3, column=1, padx=80, sƟcky="w") 
+Label(root, text="Trans Amount:").grid(row=5, column=0, pady=6, padx=10, sƟcky="w") trans_entry = Entry(root, 
+width=22) 
+trans_entry.grid(row=5, column=1, columnspan=2, pady=6, sƟcky="w") 
+ 
+BuƩon(root, text="Create Acc", command=save_account, bg="green", fg="white", width=10).grid(row=6, column=0, 
+pady=10, padx=5) 
+BuƩon(root, text="+ Deposit", command=lambda: handle_transacƟon("deposit"), width=10).grid(row=6, column=1, 
+pady=10, padx=5, sƟcky="w") 
+BuƩon(root, text="- Withdraw", command=lambda: handle_transacƟon("withdraw"), width=10).grid(row=6, 
+column=1, padx=95, pady=10, sƟcky="w") 
+ 
+                                                                  
+7.Hospital Management System 
+Develop a Hospital Management System using Python Tkinter and MongoDB. Database Name: Hospital 
+CollecƟon Name: paƟent 
+Fields: PaƟent_ID, Name, Age, Gender, Doctor_Name, Room_Type, Number_of_Days, ConsultaƟon_Fees, 
+Medicine_Charges, Room_Charges, Test_Charges, Total 
+Requirements: 
+• Search paƟent by PaƟent ID or PaƟent Name. from tkinter import * 
+from tkinter import messagebox from pymongo import MongoClient 
+# Database Setup 
+client = MongoClient("mongodb://localhost:27017/") db = client["hospital_db"] 
+collecƟon = db["paƟents"] 
+def calculate_and_save(): 
+if not pid.get() or not pname.get(): 
+messagebox.showerror("Error", "PaƟent ID and Name are required!") return 
+try: 
+fees = ﬂoat(pfees.get() or 0) days = int(pdays.get() or 0) meds = ﬂoat(pmeds.get() or 0) tests = ﬂoat(ptests.get() or 0)
+
+===== PAGE 21 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+21 
+ 
+rate = 3000 if rtype.get() == "ICU" else (1500 if rtype.get() == "Private" else 700) calculated_room_charges = rate * 
+days 
+grand_total = fees + calculated_room_charges + meds + tests 
+doc = { 
+"paƟent_id": pid.get(), "paƟent_name": pname.get(), "room_no": proom.get(), "consultaƟon_fees": fees, 
+"room_type": rtype.get(), "number_of_days": days, "medicine_charges": meds, 
+"test_charges": tests, 
+"room_charges": calculated_room_charges, "total_bill": grand_total 
+} 
+collecƟon.update_one({"paƟent_id": pid.get()}, 
+ {"$set": doc}, 
+ upsert=True) messagebox.showinfo("Success", f"Record Saved!\nRoom Charges: ₹{calculated_room_charges}\nTotal 
+Bill: ₹{grand_total}") clear_ﬁelds() 
+except ValueError: 
+messagebox.showerror("Error", "Please enter valid numeric values for charges and days!") 
+ 
+def search_paƟent(): 
+ if not pid.get(): 
+messagebox.showerror("Error", "Enter PaƟent ID to search!") return 
+ 
+pat = collecƟon.ﬁnd_one({"paƟent_id": pid.get()}) if pat: 
+pname.delete(0, END); 
+ pname.insert(0, pat.get("paƟent_name", "")) 
+ proom.delete(0, END); 
+ proom.insert(0, pat.get("room_no", ""))  
+pfees.delete(0, END);  
+pfees.insert(0, str(pat.get("consultaƟon_fees", 0)))  
+rtype.set(pat.get("room_type", "General")) 
+pdays.delete(0, END); 
+ pdays.insert(0, str(pat.get("number_of_days", 0))) 
+pmeds.delete(0, END); 
+ pmeds.insert(0, str(pat.get("medicine_charges", 0))) 
+ ptests.delete(0, END);
+
+===== PAGE 22 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+22 
+ 
+ptests.insert(0, str(pat.get("test_charges", 0))) 
+lbl_total.conﬁg(text=f"Room Charges: ₹{pat.get('room_charges', 0)} |Total Bill: ₹{pat.get('total_bill', 0)}")  
+else: 
+messagebox.showerror("Not Found", "No paƟent record found with this ID!") 
+def clear_ﬁelds(): 
+pid.delete(0, END);  
+pname.delete(0, END);  
+proom.delete(0, END) 
+pfees.delete(0, END); 
+ pdays.delete(0, END); 
+ pmeds.delete(0, END);  
+ptests.delete(0, END) rtype.set("General") 
+lbl_total.conﬁg(text="Room Charges: ₹0 | Total Bill: ₹0") 
+ 
+root = Tk() 
+root.Ɵtle("Hospital Billing System") root.geometry("400x440") 
+ 
+rtype = StringVar(value="General") 
+ 
+labels = ["PaƟent ID:", "PaƟent Name:", "Room No:", "ConsultaƟon Fees:", "Number of Days:", "Medicine Charges:", 
+"Test Charges:"] 
+vars_list = ["pid", "pname", "proom", "pfees", "pdays", "pmeds", "ptests"] 
+ 
+for i, label_text in enumerate(labels): 
+Label(root, text=label_text).grid(row=i if i==0 else i+1, column=0, pady=4, padx=15, sƟcky="w") globals()[vars_list[i]] 
+= Entry(root, width=20) 
+globals()[vars_list[i]].grid(row=i if i==0 else i+1, column=1, pady=4, sƟcky="w") 
+BuƩon(root, text="Search", command=search_paƟent ).grid(row=0, column=1, padx=1) 
+ 
+Label(root, text="Room Type:").grid(row=3, column=0, pady=4, padx=15, sƟcky="w") RadiobuƩon(root, 
+text="General", variable=rtype, value="General").grid(row=3, column=1, sƟcky="w") 
+RadiobuƩon(root, text="Private", variable=rtype, value="Private").grid(row=3, column=1, padx=75, sƟcky="w")
+
+===== PAGE 23 =====
+ASSINGMENT:7                                                 ROLL NO:17 505:HANDLING DATABASE USING PYTHON 
+23 
+ 
+RadiobuƩon(root, text="ICU", variable=rtype, value="ICU").grid(row=3, column=1, padx=145, sƟcky="w") lbl_total = 
+Label(root, text="Room Charges: ₹0 | Total Bill: ₹0", font=("Arial", 10, "bold")) lbl_total.grid(row=9, column=0, 
+columnspan=3, pady=10) 
+BuƩon(root, text="Calculate & Save", command=calculate_and_save, width=14).grid(row=10, column=0, padx=10, 
+pady=5) 
+BuƩon(root, text="Clear Form", command=clear_ﬁelds, width=12).grid(row=10, column=1, pady=5, sƟcky="w") 
+root.mainloop()
+
+===== EMBEDDED SCREENSHOT CONTENT (PAGE 8) =====
+The page contains a screenshot of an Employee Management System window.
+Visible fields include: Name, Age, D.O.B, Email, Gender, Contact No, Address.
+Visible buttons include: Add Details, Update Details, Delete Details, Clear Details.
+The displayed sample table contains entries including Ram, Sam Kumar, Stanley, and Anish.
+The page then begins Question 3: Product and Customer Bill Management System, with the
+requirements and initial MongoDB/Tkinter code shown in the surrounding PDF text.
